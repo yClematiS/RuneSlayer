@@ -18,7 +18,7 @@ local connection
 local hue = 0
 
 local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+screenGui.Parent = game:GetService("CoreGui")
 
 local uiFrame = Instance.new("Frame")
 uiFrame.Parent = screenGui
