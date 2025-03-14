@@ -20,14 +20,12 @@ print([[
 
 local fake2x = game:GetService("ReplicatedStorage").GlobalSettings.DoubleDrops
 fake2x.Value = true
-local serverspeed = game:GetService("ReplicatedStorage").GlobalSettings.WindSpeed
-serverspeed.Value = math.random(3000, 4000)
 local weather = game:GetService("ReplicatedStorage").GlobalSettings.Weather
 weather.Value = "ThunderStorm"
 local serverns = game:GetService("ReplicatedStorage").GlobalSettings.ServerName
 serverns.Value = serverns.Value .. " | discord.gg/VW72J8qUVy"
 local serverage = game:GetService("ReplicatedStorage").GlobalSettings.ServerAge
-serverage.Value = math.random(-99999999999999, 99999999999999)
+serverage.Value = math.random(-10^6, 10^6)
 local serverver = game:GetService("ReplicatedStorage").GlobalSettings.ServerVersion
 serverver.Value = "Rune Slayer | Clematis Hub"
 
@@ -116,7 +114,7 @@ statusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
 statusLabel.Text = "Status: DISABLED"
 
 local function updateUI()
-    hue = (hue + 6) % 360
+    hue = (hue + 1) % 360
     local rgbColor = Color3.fromHSV(hue / 360, 1, 1)
     statusLabel.TextColor3 = rgbColor
     uiFrame.BorderColor3 = rgbColor
