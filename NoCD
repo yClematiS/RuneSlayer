@@ -18,6 +18,19 @@ print([[
 ----------------------------------------------------------------------------------------------- --
 ]])
 
+local fake2x = game:GetService("ReplicatedStorage").GlobalSettings.DoubleDrops
+fake2x.Value = true
+local serverspeed = game:GetService("ReplicatedStorage").GlobalSettings.WindSpeed
+serverspeed.Value = math.random(3000, 4000)
+local weather = game:GetService("ReplicatedStorage").GlobalSettings.Weather
+weather.Value = "ThunderStorm"
+local serverns = game:GetService("ReplicatedStorage").GlobalSettings.ServerName
+serverns.Value = serverns.Value .. " | discord.gg/VW72J8qUVy"
+local serverage = game:GetService("ReplicatedStorage").GlobalSettings.ServerAge
+serverage.Value = math.random(-99999999999999, 99999999999999)
+local serverver = game:GetService("ReplicatedStorage").GlobalSettings.ServerVersion
+serverver.Value = "Rune Slayer | Clematis Hub"
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
