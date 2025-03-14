@@ -1,6 +1,27 @@
+print([[
+--------------------------------------------------------------------------------------
+ ________  ___       _______   _____ ______   ________  _________  ___  ________      
+|\   ____\|\  \     |\  ___ \ |\   _ \  _   \|\   __  \|\___   ___\\  \|\   ____\     
+\ \  \___|\ \  \    \ \   __/|\ \  \\\__\ \  \ \  \|\  \|___ \  \_\ \  \ \  \___|_    
+ \ \  \    \ \  \    \ \  \_|/_\ \  \\|__| \  \ \   __  \   \ \  \ \ \  \ \_____  \   
+  \ \  \____\ \  \____\ \  \_|\ \ \  \    \ \  \ \  \ \  \   \ \  \ \ \  \|____|\  \  
+   \ \_______\ \_______\ \_______\ \__\    \ \__\ \__\ \__\   \ \__\ \ \__\_________\
+    \|_______|\|_______|\|_______|\|__|     \|__|\|__|\|__|    \|__|  \|__|\_________|
+
+                        ___  ___  ___  ___  ________     
+                        |\  \|\  \|\  \|\  \|\   __  \    
+                        \ \  \\\  \ \  \\\  \ \  \|\ /_   
+                         \ \   __  \ \  \\\  \ \   __  \  
+                          \ \  \ \  \ \  \\\  \ \  \|\  \ 
+                           \ \__\ \__\ \_______\ \_______\
+                            \|__|\|__|\|_______|\|_______|
+----------------------------------------------------------------------------------------------- --
+]])
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
 
 local unwanted = {
     "RollCD", "CantRoll", "CantRun", "ActionSignal", 
@@ -16,13 +37,21 @@ local unwanted = {
 local enabled = false
 local connection
 local hue = 0
+local mode = "Cooldown"
+
+for _, v in ipairs(CoreGui:GetChildren()) do
+    if v:IsA("ScreenGui") and v.Name == "ClematisHubUI" then
+        v:Destroy()
+    end
+end
 
 local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = game:GetService("CoreGui")
+screenGui.Name = "ClematisHubUI"
+screenGui.Parent = CoreGui
 
 local uiFrame = Instance.new("Frame")
 uiFrame.Parent = screenGui
-uiFrame.Size = UDim2.new(0, 300, 0, 90)
+uiFrame.Size = UDim2.new(0, 300, 0, 110)
 uiFrame.Position = UDim2.new(1, -380, 1, -140)
 uiFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 uiFrame.BackgroundTransparency = 0.3
@@ -34,36 +63,37 @@ uiFrame.Draggable = true
 local logo = Instance.new("ImageLabel")
 logo.Parent = uiFrame
 logo.Size = UDim2.new(0, 50, 0, 50)
-logo.Position = UDim2.new(0, 5, 0, 5)
+logo.Position = UDim2.new(0, 2, 0, 0)
 logo.BackgroundTransparency = 1
 logo.Image = "rbxassetid://83415391084673"
 
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Parent = uiFrame
 titleLabel.Size = UDim2.new(1, -40, 0, 30)
-titleLabel.Position = UDim2.new(0, 40, 0, 0)
+titleLabel.Position = UDim2.new(0, 40, 0, 5)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "Clematis Hub | Cooldown Remover"
+titleLabel.Text = "Clematis Hub | CD Remover"
 titleLabel.TextScaled = true
 titleLabel.Font = Enum.Font.SourceSansBold
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.TextStrokeTransparency = 0.5
 
-local pressLabel = Instance.new("TextLabel")
-pressLabel.Parent = uiFrame
-pressLabel.Size = UDim2.new(1, 0, 0, 20)
-pressLabel.Position = UDim2.new(0, 0, 0, 30)
-pressLabel.BackgroundTransparency = 1
-pressLabel.Text = 'Press : "N"'
-pressLabel.TextScaled = true
-pressLabel.Font = Enum.Font.SourceSansBold
-pressLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-pressLabel.TextStrokeTransparency = 0.5
+local modeLabel = Instance.new("TextLabel")
+modeLabel.Parent = uiFrame
+modeLabel.Size = UDim2.new(1, 0, 0, 20)
+modeLabel.Position = UDim2.new(0, 0, 0, 42)
+modeLabel.BackgroundTransparency = 1
+modeLabel.Text = 'Mode : Cooldown \n("B" to switch "N" to apply)'
+modeLabel.TextScaled = false
+modeLabel.TextSize = 16
+modeLabel.Font = Enum.Font.SourceSansBold
+modeLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+modeLabel.TextStrokeTransparency = 0.5
 
 local statusLabel = Instance.new("TextLabel")
 statusLabel.Parent = uiFrame
 statusLabel.Size = UDim2.new(1, 0, 0, 30)
-statusLabel.Position = UDim2.new(0, 0, 0, 50)
+statusLabel.Position = UDim2.new(0, 0, 0, 70)
 statusLabel.BackgroundTransparency = 1
 statusLabel.TextScaled = true
 statusLabel.Font = Enum.Font.SourceSansBold
@@ -72,23 +102,29 @@ statusLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 statusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
 statusLabel.Text = "Status: DISABLED"
 
-spawn(function()
-    while true do
-        hue = (hue + 6) % 360
-        local rgbColor = Color3.fromHSV(hue / 360, 1, 1)
-        statusLabel.TextColor3 = rgbColor
-        uiFrame.BorderColor3 = rgbColor
-        wait(0.02)
-    end
-end)
+local function updateUI()
+    hue = (hue + 6) % 360
+    local rgbColor = Color3.fromHSV(hue / 360, 1, 1)
+    statusLabel.TextColor3 = rgbColor
+    uiFrame.BorderColor3 = rgbColor
+end
+RunService.RenderStepped:Connect(updateUI)
 
 local function clearEffects()
     local me = Players.LocalPlayer.Character
     if not me then return end
     
-    for _, v in ipairs(me:GetDescendants()) do
-        if table.find(unwanted, v.Name) then
-            v:Destroy()
+    if mode == "Cooldown" then
+        for _, v in ipairs(me:GetDescendants()) do
+            if table.find(unwanted, v.Name) then
+                v:Destroy()
+            end
+        end
+    elseif mode == "All" then
+        for _, v in ipairs(me:GetChildren()) do
+            if v:IsA("Accessory") then
+                v:Destroy()
+            end
         end
     end
 end
@@ -96,16 +132,24 @@ end
 local function toggleLoop()
     enabled = not enabled
     if enabled then
-        connection = RunService.Heartbeat:Connect(clearEffects)
+        if connection then connection:Disconnect() end
+        connection = RunService.RenderStepped:Connect(clearEffects)
     else
         if connection then connection:Disconnect() end
     end
     statusLabel.Text = enabled and "Status: ENABLED" or "Status: DISABLED"
 end
 
+local function switchMode()
+    mode = mode == "Cooldown" and "All" or "Cooldown"
+	modeLabel.Text = 'Mode : ' .. mode .. '\n("B" to switch "N" to apply)'
+end
+
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     if input.KeyCode == Enum.KeyCode.N then
         toggleLoop()
+    elseif input.KeyCode == Enum.KeyCode.B then
+        switchMode()
     end
 end)
